@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stickman Dress-Up Budget Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #eef2f7;
+    padding: 20px;
+    text-align: center;
+  }
+
+  h2 {
+    margin-bottom: 5px;
+  }
+
+  .game-container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  }
+
+  #budget-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  #budget-box.over {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+#stickman-container {
+  position: relative;
+  width: 250px;
+  height: 400px;
+  margin: 20px auto;
+  border: 2px dashed red; /* testing */
+}
+
+/*
+#shirt-layer { border: 2px dashed blue; }
+#pants-layer { border: 2px dashed green; }
+#shoes-layer { border: 2px dashed orange; }
+#hat-layer { border: 2px dashed purple; }
+*/
+
+.clothing-layer {
+  position: absolute;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  object-fit: contain;
+}
+
+/* Shirt layer */
+#shirt-layer {
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 150px;
+  object-fit: contain;
+  z-index:2;
+}
+
+/* Pants layer */
+#pants-layer {
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 300px;   /* limit width for large pants */
+  max-height: 200px;  /* limit height */
+  width: auto;
+  height: auto;
+  z-index:1;
+}
+
+/* Shoes layer */
+#shoes-layer {
+  top: 310px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 60px;
+  object-fit: contain;
+  z-index: 3;
+}
+
+/* Hat layer */
+#hat-layer {
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 60px;
+  object-fit: contain;
+  z-index: 4;
+}
+
+
+#hat-layer {
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80px;   /* smaller max width for hat */
+}
+
+
+  #clothes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 25px;
+  }
+
+  .clothes-box {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 10px;
+    box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease;
+  }
+
+  .clothes-box:hover {
+    transform: translateY(-4px);
+  }
+
+  .clothes {
+    width: 100px;
+    cursor: grab;
+  }
+
+  .price {
+    font-weight: bold;
+    margin-top: 5px;
+  }
+
+  button {
+    margin: 15px 8px 0;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .primary {
+    background: #2563eb;
+    color: white;
+  }
+
+  .secondary {
+    background: #e5e7eb;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  #drawer {
+    display: none;
+    margin-top: 25px;
+    background: #dcfce7;
+    border-radius: 16px;
+    padding: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #166534;
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h2>👕 Stickman Dress-Up Budget Game</h2>
+  <p>Drag clothes onto the stickman. Stay under budget to unlock the code!</p>
+
+  <div id="budget-box">
+    <span>💰 Budget: $300</span>
+    <span>🧾 Total: $<span id="total">0</span></span>
+    <span>⏱ Time: <span id="timer">3:00</span></span>
+  </div>
+
+  <div id="stickman-container">
+    <img src="stick-man.png" id="stickman" alt="Stickman">
+
+    <!-- Clothing layers -->
+    <img id="shirt-layer" class="clothing-layer">
+    <img id="pants-layer" class="clothing-layer">
+    <img id="shoes-layer" class="clothing-layer">
+    <img id="hat-layer" class="clothing-layer">
+  </div>
+
+  <div id="clothes-container">
+
+    <div class="clothes-box">
+      <img src="tshirt1-5.png" class="clothes" draggable="true" data-price="35" data-type="shirt" data-offset-y="-6" data-scale="1.05">
+      <div class="price">$35</div>
+      <div class="brand"> Blank T-shirt:Blue</div>
+    </div>
+
+    <div class="clothes-box">
+      <img src="tshirt2.png" class="clothes" draggable="true" data-price="65" data-type="shirt" data-offset-y="-8" data-scale="1.05">
+      <div class="price">$65</div>
+      <div class="brand"> Globe Logo Long Sleeve: Green</div>
+    </div>
+
+    <div class="clothes-box">
+      <img src="tshirt3.png" class="clothes" draggable="true" data-price="110" data-type="shirt" data-offset-y="9" data-scale="0.95">
+      <div class="price">$110</div>
+      <div class="brand"> Gucci Polo: Black and White</div>
+    </div>
+
+    <div class="clothes-box">
+      <img src="pants1.png" class="clothes" draggable="true" data-price="35" data-type="pants" data-offset-y="0" data-scale="1.15">
+      <div class="price">$35</div>
+      <div class="brand"> Fleece Joggers: Gray</div>
+
+    </div>
+
+    <div class="clothes-box">
+      <img src="pants2.png" class="clothes" draggable="true" data-price="65" data-type="pants" data-offset-y="5" data-scale="1">
+      <div class="price">$65</div>
+      <div class="brand"> Black Trousers</div>
+
+    </div>
+
+  <div class="clothes-box">
+      <img src="pants3.png" class="clothes" draggable="true" data-price="65" data-type="pants" data-offset-y="5" data-scale="1">
+      <div class="price">$110</div>
+      <div class="brand"> Cargo Pants: Brown</div>
+
+    </div>
+
+    <div class="clothes-box">
+      <img src="sneakers1-2.png" class="clothes" draggable="true" data-price="35" data-type="shoes" data-offset-y="5" data-scale="2">
+      <div class="price">$35</div>
+      <div class="brand"> Black Vans</div>
+    </div>
+
+    <div class="clothes-box">
+      <img src="sneakers2.png" class="clothes" draggable="true" data-price="65" data-type="shoes" data-offset-y="5" data-scale="1">
+      <div class="price">$65</div>
+      <div class="brand"> White Nike Air Force </div>
+    </div>
+
+      <div class="clothes-box">
+      <img src="sneakers3.png" class="clothes" draggable="true" data-price="110" data-type="shoes" data-offset-y="4" data-scale="4">
+      <div class="price">$110</div>
+      <div class="brand">Burgandy Prada Sneakers </div>
+    </div>
+
+    <div class="clothes-box">
+      <img src="hat.png" class="clothes" draggable="true" data-price="15" data-type="hat" data-offset-y="-10">
+      <div class="price">$15</div>
+    </div>
+  </div>
+
+  <button class="primary" onclick="checkBudget()">Finish Outfit</button>
+  <button class="secondary" onclick="resetGame()">Reset</button>
+
+  <div id="drawer">
+    🔓 Outfit Complete!  
+    <br><br>
+    ✅ Secret Code: <strong>4829</strong>
+  </div>
+</div>
+
+<script>
+
+
+
+
+let timeLeft = 10; // 3 minutes in seconds
+let timerUnlocked = false;
+const timerDisplay = document.getElementById("timer");
+
+let budget = 300;
+let total = 0;
+
+// Clothing layers
+const layers = {
+  shirt: document.getElementById("shirt-layer"),
+  pants: document.getElementById("pants-layer"),
+  shoes: document.getElementById("shoes-layer"),
+  hat: document.getElementById("hat-layer")
+};
+
+// Budget elements
+const totalSpan = document.getElementById("total");
+const budgetBox = document.getElementById("budget-box");
+
+// Drag start for clothes
+document.querySelectorAll('.clothes').forEach(img => img.addEventListener('dragstart', dragStart));
+
+// Stickman container drop
+const stickmanContainer = document.getElementById("stickman-container");
+stickmanContainer.addEventListener("dragover", e => e.preventDefault());
+stickmanContainer.addEventListener("drop", handleDrop);
+
+function dragStart(e) {
+  e.dataTransfer.setData("src", e.target.src);
+  e.dataTransfer.setData("price", e.target.dataset.price);
+  e.dataTransfer.setData("type", e.target.dataset.type);
+
+  // ✅ NEW
+  e.dataTransfer.setData("offsetY", e.target.dataset.offsetY || 0);
+  e.dataTransfer.setData("scale", e.target.dataset.scale || 1);
+}
+
+
+
+function handleDrop(e) {
+  e.preventDefault();
+
+  const type = e.dataTransfer.getData("type");
+  const src = e.dataTransfer.getData("src");
+  const price = parseInt(e.dataTransfer.getData("price"));
+  const offsetY = e.dataTransfer.getData("offsetY") || 0;
+  const scale = e.dataTransfer.getData("scale") || 1;
+
+  if (layers[type].dataset.price) {
+    total -= parseInt(layers[type].dataset.price);
+  }
+
+  layers[type].src = src;
+  layers[type].dataset.price = price;
+
+  // 🔥 PER-ITEM FIT
+  layers[type].style.transform =
+    `translateX(-50%) translateY(${offsetY}px) scale(${scale})`;
+
+  total += price;
+  totalSpan.innerText = total;
+  budgetBox.classList.toggle("over", total > budget);
+}
+
+
+
+
+
+
+
+// Reset with animation
+function resetGame() {
+  total = 0;
+  totalSpan.innerText = total;
+  budgetBox.classList.remove("over");
+
+  Object.values(layers).forEach(layer => {
+    layer.style.transition = "opacity 0.3s ease";
+    layer.style.opacity = 0;
+
+    setTimeout(() => {
+      layer.src = "";
+      layer.dataset.price = "";
+      layer.style.opacity = 1;
+
+      // 🔥 IMPORTANT: remove inline positioning
+      layer.style.removeProperty("top");
+      layer.style.removeProperty("left");
+      layer.style.removeProperty("transform");
+    }, 300);
+  });
+
+  document.getElementById("drawer").style.display = "none";
+}
+
+
+
+function checkBudget() {
+  if (!timerUnlocked) {
+    alert("⏳ Keep playing! You need to spend at least 3 minutes.");
+    return;
+  }
+
+  if (total <= budget) {
+    document.getElementById("drawer").style.display = "block";
+  } else {
+    alert("🚫 Over budget! Remove some items.");
+  }
+}
+
+
+function startTimer() {
+  const interval = setInterval(() => {
+    timeLeft--;
+
+    let minutes = Math.floor(timeLeft / 60);
+    let seconds = timeLeft % 60;
+    timerDisplay.innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      timerUnlocked = true;
+      timerDisplay.innerText = "0:00";
+    }
+  }, 1000);
+}
+
+startTimer();
+
+</script>
+
+</body>
+</html>
